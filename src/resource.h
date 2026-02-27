@@ -1,0 +1,39 @@
+#pragma once
+
+// Keyboard accelerators
+#define ACC_QUIT 1001
+#define ACC_SPACE 1002
+#define ACC_FULLSCREEN 1003
+#define ACC_ACCELERATE 1004
+#define ACC_DECCELERATE 1005
+#define ACC_SHADE 1006
+#define ACC_O 1007
+#define ACC_S 1008
+#define ACC_C 1009
+#define ACC_SUPP 1010
+#define ACC_REPLAY 1011
+
+// Menu commands
+#define IDM_TOGGLEFULLSCREEN 2001
+#define IDM_TOGGLESTATS 2002
+#define IDM_TOGGLERASTER 2003
+#define IDM_FREERIDE 2004
+#define IDM_TOGGLEBB 2005
+#define IDM_TOGGLEBLOOM 2006
+
+// Console controls
+#define IDC_CLEARCON 3001
+#define IDC_CONSOLEOUTPUT 3002
+#define IDC_PROGRESS 3003
+
+// GUI controls
+#define IDC_BOARD 3101
+#define IDC_CLPL 3102
+#define IDC_FULLSCREEN 3103
+#define IDC_LOADPL 3104
+#define IDC_QUIT 3105
+#define IDC_REPLAY 3106
+#define IDC_SAVEPL 3107
+#define IDC_SHADE 3108
+#define IDC_TREE 3109
+#define IDC_VMODE 3110

@@ -17,7 +17,7 @@
 	#include	<d3d.h>
 	#include	"nXng/nX_console.h"
 	#include	"nXng/cScreenMN.h"
-	#include	"d:\devellop\nX_S3DE\resource.h"
+	#include	"resource.h"
 	static		char	str[256];
 
 

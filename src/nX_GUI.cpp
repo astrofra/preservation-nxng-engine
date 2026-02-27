@@ -21,12 +21,12 @@
 	#include	<winuser.h>
 	#include	<stdio.h>
 
-	#include	"d:\devellop\nX_S3DE\resource.h"
+	#include	"resource.h"
 
-	#include	"nXng\nX_Console.h"
-	#include	"nXng\cScreenMN.h"
-	#include	"nXng\nX_GUI.h"
-	#include	"IO\CqString.h"
+	#include	"nXng/nX_Console.h"
+	#include	"nXng/cScreenMN.h"
+	#include	"nXng/nX_GUI.h"
+	#include	"IO/cqString.h"
 
 	static		nX_GUI			*ruler;
 	static		char			str[256];

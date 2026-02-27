@@ -20,7 +20,7 @@
 #ifdef	nX_ENABLEBLOOM
 #define	OFF7	6
 
-	#include	"IO\BitConvertIO.h"
+	#include	"IO/BitConvertIO.h"
 
 void	nX::PostProcessBloom()
 {

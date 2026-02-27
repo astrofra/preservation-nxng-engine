@@ -124,12 +124,12 @@ void cMath::CrossProd(cM_Vector *w, cM_Vector *u, cM_Vector *v)
 
 cM_Vector::cM_Vector()
 {
-	memset(this, 0, sizeof cM_Vector);
+	memset(this, 0, sizeof(cM_Vector));
 }
 
 cM_Vector::cM_Vector(double u, double v, double w)
 {
-	memset(this, 0, sizeof cM_Vector);
+	memset(this, 0, sizeof(cM_Vector));
 	x = u; y = v; z = w;	
 }
 

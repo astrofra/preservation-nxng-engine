@@ -16,11 +16,11 @@
 	#include	<windows.h>
 	#include	<commctrl.h>
 	#include	<stdio.h>
-	#include	"d:\devellop\nX_S3DE\resource.h"
+	#include	"resource.h"
 
 	#include	"IMG.h"
-	#include	"nXng\nX_Version.h"
-	#include	"nXng\nX_Console.h"
+	#include	"nXng/nX_Version.h"
+	#include	"nXng/nX_Console.h"
 
 	static		HBRUSH			bgBrush;
 	static		HBRUSH			lbbgBrush;

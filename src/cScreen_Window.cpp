@@ -19,7 +19,7 @@
 
 	#include	<ddraw.h>
 	#include	<d3d.h>
-	#include	"d:\devellop\nX_S3DE\resource.h"
+	#include	"resource.h"
 
 	#include	"nXng/nX_console.h"
 	#include	"nXng/cScreenMN.h"

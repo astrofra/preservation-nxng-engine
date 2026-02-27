@@ -28,6 +28,14 @@ Vec3 sub(const Vec3& a, const Vec3& b) {
     return {a.x - b.x, a.y - b.y, a.z - b.z};
 }
 
+Vec3 add(const Vec3& a, const Vec3& b) {
+    return {a.x + b.x, a.y + b.y, a.z + b.z};
+}
+
+Vec3 mul(const Vec3& v, float s) {
+    return {v.x * s, v.y * s, v.z * s};
+}
+
 Vec3 cross(const Vec3& a, const Vec3& b) {
     return {
         a.y * b.z - a.z * b.y,
@@ -46,6 +54,18 @@ Vec3 normalized(const Vec3& v) {
         return {0.0f, 1.0f, 0.0f};
     }
     return {v.x / len, v.y / len, v.z / len};
+}
+
+Vec3 forward_from_angles(float yaw_deg, float pitch_deg) {
+    const float yaw = yaw_deg * kPi / 180.0f;
+    const float pitch = pitch_deg * kPi / 180.0f;
+    const float cp = std::cos(pitch);
+    return normalized({std::sin(yaw) * cp, std::sin(pitch), -std::cos(yaw) * cp});
+}
+
+Vec3 right_from_yaw(float yaw_deg) {
+    const float yaw = yaw_deg * kPi / 180.0f;
+    return normalized({std::cos(yaw), 0.0f, std::sin(yaw)});
 }
 
 float safe_scale(float s) {
@@ -230,35 +250,101 @@ public:
         float pitch = -20.0f;
         float distance = radius * 2.5f;
         bool auto_rotate = true;
+        bool fly_mode = false;
+        bool tab_down_last = false;
+
+        Vec3 camera_pos{cx, cy, cz + distance};
+        double mouse_last_x = 0.0;
+        double mouse_last_y = 0.0;
+        bool mouse_has_prev = false;
+        double last_time = glfwGetTime();
 
         while (!glfwWindowShouldClose(window)) {
+            const double now = glfwGetTime();
+            const float dt = static_cast<float>(std::max(0.0, now - last_time));
+            last_time = now;
+
             if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
                 glfwSetWindowShouldClose(window, GLFW_TRUE);
             }
-            if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-                yaw -= 1.0f;
-            }
-            if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-                yaw += 1.0f;
-            }
-            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-                pitch -= 1.0f;
-            }
-            if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-                pitch += 1.0f;
-            }
-            if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
-                distance = std::max(radius * 0.5f, distance * 0.98f);
-            }
-            if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
-                distance = std::min(radius * 20.0f, distance * 1.02f);
-            }
-            if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-                auto_rotate = false;
-            }
 
-            if (auto_rotate) {
-                yaw += 0.2f;
+            const bool tab_down = (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS);
+            if (tab_down && !tab_down_last) {
+                fly_mode = !fly_mode;
+                auto_rotate = false;
+                mouse_has_prev = false;
+                glfwSetInputMode(window, GLFW_CURSOR, fly_mode ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+            }
+            tab_down_last = tab_down;
+
+            if (fly_mode) {
+                double mouse_x = 0.0;
+                double mouse_y = 0.0;
+                glfwGetCursorPos(window, &mouse_x, &mouse_y);
+                if (!mouse_has_prev) {
+                    mouse_last_x = mouse_x;
+                    mouse_last_y = mouse_y;
+                    mouse_has_prev = true;
+                }
+
+                const float dx_mouse = static_cast<float>(mouse_x - mouse_last_x);
+                const float dy_mouse = static_cast<float>(mouse_y - mouse_last_y);
+                mouse_last_x = mouse_x;
+                mouse_last_y = mouse_y;
+
+                const float mouse_sensitivity = 0.11f;
+                yaw += dx_mouse * mouse_sensitivity;
+                pitch -= dy_mouse * mouse_sensitivity;
+                pitch = std::clamp(pitch, -89.0f, 89.0f);
+
+                float speed = std::max(0.25f, radius) * 0.9f;
+                if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+                    glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+                    speed *= 3.0f;
+                }
+
+                const Vec3 fwd = forward_from_angles(yaw, pitch);
+                const Vec3 right = right_from_yaw(yaw);
+                const Vec3 up{0.0f, 1.0f, 0.0f};
+
+                Vec3 move{0.0f, 0.0f, 0.0f};
+                if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) move = add(move, fwd);
+                if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) move = sub(move, fwd);
+                if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) move = add(move, right);
+                if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) move = sub(move, right);
+                if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) move = add(move, up);
+                if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) move = sub(move, up);
+
+                const float move_len = length(move);
+                if (move_len > 1.0e-5f) {
+                    camera_pos = add(camera_pos, mul(normalized(move), speed * dt));
+                }
+            } else {
+                if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+                    yaw -= 1.0f;
+                }
+                if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+                    yaw += 1.0f;
+                }
+                if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+                    pitch -= 1.0f;
+                }
+                if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+                    pitch += 1.0f;
+                }
+                if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
+                    distance = std::max(radius * 0.5f, distance * 0.98f);
+                }
+                if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
+                    distance = std::min(radius * 20.0f, distance * 1.02f);
+                }
+                if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+                    auto_rotate = false;
+                }
+
+                if (auto_rotate) {
+                    yaw += 0.2f;
+                }
             }
 
             int fbw = 0;
@@ -283,10 +369,16 @@ public:
 
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
-            glTranslatef(0.0f, 0.0f, -distance);
-            glRotatef(pitch, 1.0f, 0.0f, 0.0f);
-            glRotatef(yaw, 0.0f, 1.0f, 0.0f);
-            glTranslatef(-cx, -cy, -cz);
+            if (fly_mode) {
+                glRotatef(-pitch, 1.0f, 0.0f, 0.0f);
+                glRotatef(-yaw, 0.0f, 1.0f, 0.0f);
+                glTranslatef(-camera_pos.x, -camera_pos.y, -camera_pos.z);
+            } else {
+                glTranslatef(0.0f, 0.0f, -distance);
+                glRotatef(pitch, 1.0f, 0.0f, 0.0f);
+                glRotatef(yaw, 0.0f, 1.0f, 0.0f);
+                glTranslatef(-cx, -cy, -cz);
+            }
 
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glDisable(GL_BLEND);

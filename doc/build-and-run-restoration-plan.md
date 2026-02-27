@@ -306,7 +306,7 @@ Current status:
 
 - Started with OpenGL bring-up path (GLFW + OpenGL).
 - Metal backend not started yet.
-- Current renderer draws triangulated LWOB geometry (wireframe path).
+- Current renderer draws triangulated LWOB geometry with first-pass texture sampling (planar/cylindrical/cubic mapping from `SURF` texture metadata).
 
 Effort, issues, solution:
 
@@ -376,6 +376,6 @@ Exit criteria: command-line tool loads and displays a Lightwave scene on macOS.
 ## Practical Next Actions
 
 1. Expand A1 coverage by moving remaining compile/link failures from legacy engine sources into `nxng_compat` or recovered modules.
-2. Upgrade A3 renderer from wireframe MVP to textured triangles and basic lights, then decide whether Metal is required in phase scope.
+2. Upgrade A3 renderer from textured MVP to basic lights/material response and decide whether Metal is required in phase scope.
 3. Continue A4 modernization with a controlled pass on string APIs, include casing, and warning cleanup under Clang.
 4. Add regression scenes and a scripted smoke test (`--no-window`) to keep CLI loading stable during recovery work.

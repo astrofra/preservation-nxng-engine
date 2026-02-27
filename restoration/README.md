@@ -3,7 +3,7 @@
 This folder contains the macOS-oriented restoration path:
 
 - `compat/`: inferred compatibility shims for missing legacy modules (`IO`, `xPack`, image wrappers, input/resource stubs).
-- `nxng_cli/`: headless command-line scene loader/viewer.
+- `nxng_cli/`: command-line scene loader/viewer with a first-pass OpenGL textured renderer.
 
 ## Build
 
@@ -23,3 +23,9 @@ Useful options:
 ```bash
 ./build/restoration/nxng-cli --scene demos/fra_tanks/scene_hnoize.lws --no-window
 ```
+
+Current renderer behavior:
+
+- Loads LWOB `SURF` texture metadata (`CTEX`/`TIMG`/`TSIZ`/`TCTR`/`TFLG`).
+- Samples image textures via `stb_image`.
+- Applies first-pass planar/cylindrical/cubic UV mapping from legacy surface settings.

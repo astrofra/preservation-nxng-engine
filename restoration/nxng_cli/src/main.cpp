@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
     std::size_t triangle_count = 0;
     for (const auto& mesh : scene.meshes) {
         vertex_count += mesh.vertices.size();
-        triangle_count += mesh.triangles.size() / 3;
+        triangle_count += mesh.triangles.size();
     }
 
     std::cout << "Loaded scene: " << scene_path << "\n";
